@@ -2,6 +2,7 @@ package model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -19,9 +20,27 @@ public class CuentaModelo {
 //		-Interfaz 
 //		- Conexion a la base de datos 
 	
+	public ArrayList<CuentaBancaria> listadoCuentas;
+	
+	
+	public ArrayList<CuentaBancaria> getCuentas(){
+        MongoClient mongo = new MongoClient("localhost", 27017);
+        // Acceder a la base de datos
+        MongoDatabase database = mongo.getDatabase("banco");
+		MongoCollection<Document> cuenta = database.getCollection("cuenta");
+		Iterator<Document> it= cuenta.find().iterator();
+		
+		
+		return listadoCuentas;
+		
+	}
 
 	 public static void main(String[] args) {
 
+		 
+		 
+		 
+		 
 	        // Configura la conexión a MongoDB
 	        MongoClient mongo = new MongoClient("localhost", 27017);
 
