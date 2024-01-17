@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import model.CuentaBancaria;
+import model.CuentaModelo;
+
 @RestController
 @RequestMapping
 public class CuentaControlador {
@@ -22,9 +25,9 @@ public class CuentaControlador {
 	// Mostrar todas las cuentas bancarias: /banco/cuenta (GET) (No debe mostrar las cuentas borradas):
 	
 	@GetMapping("/banco/cuenta/")
-	public ArrayList<> getCuentas() {
+	public ArrayList<CuentaBancaria> getCuentas() {
 		
-		return ;
+		return null ;
 		
 	}
 	
@@ -40,6 +43,7 @@ public class CuentaControlador {
     
      @GetMapping("/banco/cuenta/{fecha_ini}/{fecha_fin}")
      public boolean mayorEdad(@PathVariable int edad) {
+    	 
     	 boolean mayorEdadBool;
     	 if (edad < 18) {
     		 mayorEdadBool= false;
