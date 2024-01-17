@@ -109,15 +109,8 @@ public class CuentaControlador {
 //         Si el dinero a ingresar es negativo, no hace nada.
          
          @PutMapping("/banco/cuenta/ingresar/")
-         public boolean ingresarDinero(@RequestParam int edad) {
-        	 boolean mayorEdadBool;
-        	 if (edad < 18) {
-        		 mayorEdadBool= false;
-        	 }else {
-        		 
-                 mayorEdadBool = true;
-         }
-        	 return mayorEdadBool;
+         public String ingresarDinero(@RequestParam String numero_de_cuentaIns, @RequestParam double saldo_entrante) {
+			return numero_de_cuentaIns;
          }
          
 //         Retirar dinero por numero de cuenta: /banco/cuentas/retirar/ (PUT con datos {nro_cuenta} y {retiro})

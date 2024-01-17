@@ -24,16 +24,12 @@ public class TRASHCAN {
         for (String name : database.listCollectionNames()) {
             System.out.println(name);
         }
-        
         MongoCollection<Document> cuenta = database.getCollection("cuenta");
-        
 //        // Generar el iterador para mostrar todos los datos de la base de datos
 //        Iterator<Document> it = cuenta.find().iterator();
 //        while (it.hasNext()) {
 //            System.out.println(it.next());
 //        }
-        
-        
      // Insertar datos en la colección
         Document document = new Document()
                 .append("numero_de_cuenta", "1234567890")
@@ -41,7 +37,6 @@ public class TRASHCAN {
                 .append("saldo", 50)
                 .append("fecha_apertura", new Date())
                 .append("borrada", false);
-
 //        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 //        try {
 //            Date fechaApertura = dateFormat.parse("2024-05-05T10:10:10.100Z");
@@ -50,7 +45,6 @@ public class TRASHCAN {
 //            e.printStackTrace();
 //        }
         cuenta.insertOne(document);
-
 //        // Borrar datos de un documento
 //        cuenta.deleteMany(Filters.eq("titulares", "Juan Pérez"));
 //
@@ -59,7 +53,6 @@ public class TRASHCAN {
 //                Filters.eq("numero_de_cuenta", "5555555555"),
 //                Updates.set("saldo", 500)
 //        );
-
         // Cerrar la conexión a MongoDB al finalizar
         mongo.close();
 	}
