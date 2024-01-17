@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.bson.Document;
+
 public class CuentaBancaria {
 	private String numero_de_cuenta;
 	private List<String> titulares;
@@ -16,6 +18,14 @@ public class CuentaBancaria {
 		this.titulares = new ArrayList<>();
 		this.fecha_apertura = new Date();
 		this.borrada = false;
+	}
+
+	public CuentaBancaria(Document cuentaDocumento) {
+		this.numero_de_cuenta = cuentaDocumento.getString("numeroCuenta");
+		this.titulares = (ArrayList<String>) cuentaDocumento.get("titulares");
+		this.saldo = cuentaDocumento.get("saldo", Number.class).doubleValue();
+		this.fecha_apertura = (Date) cuentaDocumento.getDate("fechaApertura");
+		this.borrada = cuentaDocumento.getBoolean("borrada", false);
 	}
 
 	// Constructor con parámetros

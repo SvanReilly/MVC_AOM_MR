@@ -18,12 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping
 public class CuentaControlador {
-
+	CuentaModelo cuentaModelo = new CuentaModelo();
 	// Mostrar todas las cuentas bancarias: /banco/cuenta (GET) (No debe mostrar las cuentas borradas):
 	
 	@GetMapping("/banco/cuenta/")
-	public int getCuentas(@PathVariable int numero1, @PathVariable int numero2) {
-		return numero1+numero2;
+	public ArrayList<> getCuentas() {
+		
+		return ;
 		
 	}
 	

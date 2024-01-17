@@ -14,80 +14,84 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 public class CuentaModelo {
-	
+
 //
 //	- CuentaModelo.java
 //		-Interfaz 
 //		- Conexion a la base de datos 
-	
+
 	public ArrayList<CuentaBancaria> listadoCuentas;
-	
-	
-	public ArrayList<CuentaBancaria> getCuentas(){
-        MongoClient mongo = new MongoClient("localhost", 27017);
-        // Acceder a la base de datos
-        MongoDatabase database = mongo.getDatabase("banco");
-		MongoCollection<Document> cuenta = database.getCollection("cuenta");
-		Iterator<Document> it= cuenta.find().iterator();
-		
-		
-		return listadoCuentas;
-		
+
+	public CuentaModelo() {
+
 	}
 
-	 public static void main(String[] args) {
+	// M�todo 1: Obtener todas las cuentas bancarias de nuestra base de datos de
+	// Mongo.
+	public ArrayList<CuentaBancaria> getCuentas() {
+		ArrayList<CuentaBancaria> listadoCuentas = new ArrayList<>();
+		MongoClient mongo = new MongoClient("localhost", 27017);
+		try {
 
-		 
-		 
-		 
-		 
-	        // Configura la conexión a MongoDB
-	        MongoClient mongo = new MongoClient("localhost", 27017);
+			MongoDatabase database = mongo.getDatabase("banco");
 
-	        // Acceder a la base de datos
-	        MongoDatabase database = mongo.getDatabase("banco");
+			MongoCollection<Document> cuenta = database.getCollection("cuenta");
 
-	        for (String name : database.listCollectionNames()) {
-	            System.out.println(name);
-	        }
-	        
-	        MongoCollection<Document> cuenta = database.getCollection("cuenta");
-	        
-	        // Generar el iterador para mostrar todos los datos de la base de datos
-	        Iterator<Document> it = cuenta.find().iterator();
-	        while (it.hasNext()) {
-	            System.out.println(it.next());
-	        }
-	        
-	       
-	     // Insertar datos en la colección
-	        Document document = new Document()
-	                .append("numero_de_cuenta", "1234567890")
-	                .append("titulares", Arrays.asList("Miguel Ángel", "Alex"))
-	                .append("saldo", 50)
-	                .append("fecha_apertura", new Date())
-	                .append("borrada", false);
+			Iterator<Document> it = cuenta.find().iterator();
 
-//	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//	        try {
-//	            Date fechaApertura = dateFormat.parse("2024-05-05T10:10:10.100Z");
-//	            document.append("fecha_apertura", fechaApertura);
-//	        } catch (ParseException e) {
-//	            e.printStackTrace();
-//	        }
-	        cuenta.insertOne(document);
+			while (it.hasNext()) {
+				Document cuentaDocumento = it.next();
+				listadoCuentas.add(new CuentaBancaria(cuentaDocumento));
+				System.out.println(cuentaDocumento);
+			}
+		} catch (Exception e) {
 
-//	        // Borrar datos de un documento
-//	        cuenta.deleteMany(Filters.eq("titulares", "Juan Pérez"));
-//
-//	        // Actualizar datos
-//	        cuenta.updateOne(
-//	                Filters.eq("numero_de_cuenta", "5555555555"),
-//	                Updates.set("saldo", 500)
-//	        );
+			e.printStackTrace();
+		} finally {
 
-	        // Cerrar la conexión a MongoDB al finalizar
-	        mongo.close();
-	    }
+			if (mongo != null) {
+				mongo.close();
+			}
+		}
 
+		return listadoCuentas;
+	}
+
+	// M�todo 2: obtener cuentas bancarias entre dos fechas de apertura de nuestra
+	// base de datos de Mongo.
+	public ArrayList<CuentaBancaria> getCuentasFecha(Date fecha_apertura_1, Date fecha_apertura_2) {
+		ArrayList<CuentaBancaria> listadoCuentas = new ArrayList<>();
+		MongoClient mongo = new MongoClient("localhost", 27017);
+		try {
+
+			MongoDatabase database = mongo.getDatabase("banco");
+
+			MongoCollection<Document> cuenta = database.getCollection("cuenta");
+
+			Iterator<Document> it = cuenta.find(Filters.and(Filters.eq("borrada", false),
+					Filters.gte("fecha_apertura", fecha_apertura_1), Filters.lt("fecha_apertura", fecha_apertura_2)))
+					.iterator();
+
+			while (it.hasNext()) {
+				Document cuentaDocumento = it.next();
+				listadoCuentas.add(new CuentaBancaria(cuentaDocumento));
+				System.out.println(cuentaDocumento);
+			}
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		} finally {
+
+			if (mongo != null) {
+				mongo.close();
+			}
+		}
+
+		return listadoCuentas;
+	}
+
+	public static void main(String[] args) {
+		CuentaModelo cuenta = new CuentaModelo();
+		cuenta.getCuentas();
+	}
 }
