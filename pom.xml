@@ -18,13 +18,13 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
-		<!-- Dependencia añadida -->
+		<!-- Dependencia añadida
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency> -->
 		<!-- Dependencia añadida -->
 		<!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
 		<dependency>
