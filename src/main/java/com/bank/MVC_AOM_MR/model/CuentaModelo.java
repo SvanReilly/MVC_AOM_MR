@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
-
-
 import org.bson.Document;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -21,20 +19,22 @@ public class CuentaModelo {
 //	- CuentaModelo.java
 //		-Interfaz 
 //		- Conexion a la base de datos 
-
-	public ArrayList<CuentaBancaria> listadoCuentas;
-
+	CuentaBancaria cuentaBancaria;
+	ArrayList<CuentaBancaria> listadoCuentas;
+	ArrayList<CuentaBancaria> cuentasNumber;
+	ArrayList<Document> cuentasBancariasDoc;
+	
 	Document cuentaModeloDocumento;
+	
 	MongoClient mongo;
 	MongoDatabase database;
 	MongoCollection<Document> cuenta;
 	Iterator<Document> it;
-	ArrayList<CuentaBancaria> cuentasNumber;
-	CuentaBancaria cuentaBancaria;
+
 	double saldoPrevio;
 	double saldo_actualizado;
-	String estado_string = "";
 	boolean estado_boolean = false;
+	String estado_string = "";
 	SimpleDateFormat dateFormat;
 	Date parsedDate1, parsedDate2;
 	SimpleDateFormat outputDateFormat;
@@ -59,7 +59,8 @@ public class CuentaModelo {
 
 			while (it.hasNext()) {
 				cuentaModeloDocumento = it.next();
-				listadoCuentas.add(new CuentaBancaria(cuentaModeloDocumento));
+				cuentaBancaria = new CuentaBancaria(cuentaModeloDocumento);
+				listadoCuentas.add(cuentaBancaria);
 
 			}
 
@@ -260,7 +261,7 @@ public class CuentaModelo {
 		cuenta = database.getCollection("cuenta");
 		estado_string = "";
 		try {
-			cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
+//			cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
 			saldoPrevio = cuentasNumber.get(0).getSaldo();
 			saldo_actualizado = saldo_entrante + saldoPrevio;
 
@@ -292,7 +293,7 @@ public class CuentaModelo {
 		MongoCollection<Document> cuenta = database.getCollection("cuenta");
 		estado_string = "";
 		try {
-			ArrayList<CuentaBancaria> cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
+//			ArrayList<CuentaBancaria> cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
 			double saldoPrevio = cuentasNumber.get(0).getSaldo();
 			double saldo_actualizado = saldoPrevio - saldo_saliente;
 

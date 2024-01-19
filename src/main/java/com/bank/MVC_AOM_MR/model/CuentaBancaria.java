@@ -21,10 +21,10 @@ public class CuentaBancaria {
 	}
 
 	public CuentaBancaria(Document cuentaDocumento) {
-		this.numero_de_cuenta = cuentaDocumento.getString("numeroCuenta");
+		this.numero_de_cuenta = cuentaDocumento.getString("numero_cuenta");
 		this.titulares = (ArrayList<String>) cuentaDocumento.get("titulares");
 		this.saldo = cuentaDocumento.get("saldo", Number.class).doubleValue();
-		this.fecha_apertura = (Date) cuentaDocumento.getDate("fechaApertura");
+		this.fecha_apertura = (Date) cuentaDocumento.getDate("fecha_apertura");
 		this.borrada = cuentaDocumento.getBoolean("borrada", false);
 	}
 
@@ -44,8 +44,8 @@ public class CuentaBancaria {
 		return numero_de_cuenta;
 	}
 
-	public void setNumeroDeCuenta(String numeroDeCuenta) {
-		this.numero_de_cuenta = numeroDeCuenta;
+	public void setNumeroDeCuenta(String numero_de_cuenta) {
+		this.numero_de_cuenta = numero_de_cuenta;
 	}
 
 	public List<String> getTitulares() {
@@ -68,8 +68,8 @@ public class CuentaBancaria {
 		return fecha_apertura;
 	}
 
-	public void setFechaApertura(Date fechaApertura) {
-		this.fecha_apertura = fechaApertura;
+	public void setFechaApertura(Date fecha_apertura) {
+		this.fecha_apertura = fecha_apertura;
 	}
 
 	public boolean isBorrada() {

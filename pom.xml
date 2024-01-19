@@ -19,8 +19,7 @@
 	</properties>
 	
 		<dependencies>
-        <!-- Dependencia añadida -->
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -1,6 +1,7 @@
 package com.bank.MVC_AOM_MR.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,18 +15,18 @@ import com.bank.MVC_AOM_MR.model.CuentaBancaria;
 import com.bank.MVC_AOM_MR.model.CuentaModelo;
 
 @RestController
-@RequestMapping("/")
 public class CuentaControlador {
 	CuentaModelo cuentaModelo = new CuentaModelo();
 
-	@GetMapping("hi")
+	@GetMapping("/hi")
 	public String hi() {
-		return "Hello, world!";
+		String hiStr = "Hello, world!";
+		return hiStr;
 	}
 	// Mostrar todas las cuentas bancarias: /banco/cuenta (GET) (No debe mostrar las
 	// cuentas borradas):
-	@GetMapping("banco/cuenta")
-	public ArrayList<CuentaBancaria> getCuentasController() {
+	@GetMapping("/banco/cuenta")
+	public List<CuentaBancaria> getCuentasController() {
 		return cuentaModelo.getCuentas();
 	}
 //
