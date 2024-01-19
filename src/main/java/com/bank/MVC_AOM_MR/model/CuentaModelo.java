@@ -14,8 +14,6 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 
 public class CuentaModelo {
-
-//
 //	- CuentaModelo.java
 //		-Interfaz 
 //		- Conexion a la base de datos 
@@ -42,7 +40,6 @@ public class CuentaModelo {
 	Date finalParsedDate1, finalParsedDate2;
 
 	public CuentaModelo() {
-
 	}
 
 	// Metodo 1: Obtener todas las cuentas bancarias de nuestra bbdd // Working
@@ -77,7 +74,7 @@ public class CuentaModelo {
 	}
 	// Metodo 2: Obtener cuentas bancarias por numero de cuenta // Working
 
-	public ArrayList<CuentaBancaria> getCuentaNumber(String numero_de_cuenta_ins) {
+	public ArrayList<CuentaBancaria> getCuentaNumber(String numero_de_cuentaIns) {
 		listadoCuentas = new ArrayList<>();
 		mongo = new MongoClient("localhost", 27017);
 		try {
@@ -86,8 +83,8 @@ public class CuentaModelo {
 
 			cuenta = database.getCollection("cuenta");
 
-			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuenta_ins))
-					.sort(Sorts.descending("fecha_apertura")).iterator();
+			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuentaIns))
+					.sort(Sorts.descending("fecha_de_apertura")).iterator();
 
 			while (it.hasNext()) {
 				cuentaModeloDocumento = it.next();
@@ -128,9 +125,9 @@ public class CuentaModelo {
 			finalParsedDate2 = outputDateFormat.parse(finalDateFormat);
 
 			it = cuenta
-					.find(Filters.and(Filters.eq("borrada", false), Filters.gte("fecha_apertura", finalParsedDate1),
-							Filters.lt("fecha_apertura", finalParsedDate2)))
-					.sort(Sorts.descending("fecha_apertura")).iterator();
+					.find(Filters.and(Filters.eq("borrada", false), Filters.gte("fecha_de_apertura", finalParsedDate1),
+							Filters.lt("fecha_de_apertura", finalParsedDate2)))
+					.sort(Sorts.descending("fecha_de_apertura")).iterator();
 
 			while (it.hasNext()) {
 				cuentaModeloDocumento = it.next();
@@ -167,7 +164,7 @@ public class CuentaModelo {
 						.append("numero_de_cuenta", numero_de_cuentaIns)
 						.append("titulares", Arrays.asList(titularesIns))
 						.append("saldo", saldoIns)
-						.append("fecha_apertura", new Date())
+						.append("fecha_de_apertura", new Date())
 						.append("borrada", false);
 				
 				cuenta.insertOne(cuentaModeloDocumento);
@@ -212,12 +209,12 @@ public class CuentaModelo {
 			finalParsedDate1 = outputDateFormat.parse(finalDateFormat);
 
 			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns),
-					Updates.set("fecha_apertura", finalParsedDate1));
+					Updates.set("fecha_de_apertura", finalParsedDate1));
 
 			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns),
 					Updates.set("titulares", titularesIns));
 
-			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns), Updates.set("borrado", borradoIns));
+			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns), Updates.set("borrada", borradoIns));
 
 			estado_boolean = true;
 		} catch (Exception e) {

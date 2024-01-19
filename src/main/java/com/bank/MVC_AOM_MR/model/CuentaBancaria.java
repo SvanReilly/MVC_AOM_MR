@@ -10,31 +10,33 @@ public class CuentaBancaria {
 	private String numero_de_cuenta;
 	private List<String> titulares;
 	private double saldo;
-	private Date fecha_apertura;
+	private Date fecha_de_apertura;
 	private boolean borrada;
 
 	// Constructor por defecto
 	public CuentaBancaria() {
+		this.numero_de_cuenta= "";
 		this.titulares = new ArrayList<>();
-		this.fecha_apertura = new Date();
+		this.saldo= 0;
+		this.fecha_de_apertura = new Date();
 		this.borrada = false;
 	}
 
 	public CuentaBancaria(Document cuentaDocumento) {
-		this.numero_de_cuenta = cuentaDocumento.getString("numero_cuenta");
+		this.numero_de_cuenta = cuentaDocumento.getString("numero_de_cuenta");
 		this.titulares = (ArrayList<String>) cuentaDocumento.get("titulares");
 		this.saldo = cuentaDocumento.get("saldo", Number.class).doubleValue();
-		this.fecha_apertura = (Date) cuentaDocumento.getDate("fecha_apertura");
+		this.fecha_de_apertura = (Date) cuentaDocumento.getDate("fecha_de_apertura");
 		this.borrada = cuentaDocumento.getBoolean("borrada", false);
 	}
 
 	// Constructor con parámetros
-	public CuentaBancaria(String numeroDeCuenta, List<String> titulares, double saldo, Date fechaApertura,
+	public CuentaBancaria(String numero_de_cuenta, List<String> titulares, double saldo, Date fecha_de_apertura,
 			boolean borrada) {
-		this.numero_de_cuenta = numeroDeCuenta;
+		this.numero_de_cuenta = numero_de_cuenta;
 		this.titulares = titulares;
 		this.saldo = saldo;
-		this.fecha_apertura = fechaApertura;
+		this.fecha_de_apertura = fecha_de_apertura;
 		this.borrada = borrada;
 	}
 
@@ -65,11 +67,11 @@ public class CuentaBancaria {
 	}
 
 	public Date getFechaApertura() {
-		return fecha_apertura;
+		return fecha_de_apertura;
 	}
 
-	public void setFechaApertura(Date fecha_apertura) {
-		this.fecha_apertura = fecha_apertura;
+	public void setFechaApertura(Date fecha_de_apertura) {
+		this.fecha_de_apertura = fecha_de_apertura;
 	}
 
 	public boolean isBorrada() {
