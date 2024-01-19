@@ -1,4 +1,4 @@
-package model;
+package com.bank.MVC_AOM_MR.model;
 
 import java.util.ArrayList;
 import java.util.Date;
