@@ -41,16 +41,20 @@ public class CuentaModelo {
 
 	public CuentaModelo() {
 	}
+	
+	public void mongoConnection() {
+		mongo = new MongoClient("localhost", 27017);
+		database = mongo.getDatabase("banco");
+		cuenta = database.getCollection("cuenta");
+	}
 
 	// Metodo 1: Obtener todas las cuentas bancarias de nuestra bbdd // Working
-	public ArrayList<CuentaBancaria> getCuentas() {
+	public ArrayList<CuentaBancaria> getAllAccounts() {
 		listadoCuentas = new ArrayList<>();
-		mongo = new MongoClient("localhost", 27017);
+		
 		try {
 
-			database = mongo.getDatabase("banco");
-
-			cuenta = database.getCollection("cuenta");
+			mongoConnection();
 
 			it = cuenta.find(Filters.eq("borrada", false)).iterator();
 
@@ -74,23 +78,19 @@ public class CuentaModelo {
 	}
 	// Metodo 2: Obtener cuentas bancarias por numero de cuenta // Working
 
-	public ArrayList<CuentaBancaria> getCuentaNumber(String numero_de_cuentaIns) {
-		listadoCuentas = new ArrayList<>();
-		mongo = new MongoClient("localhost", 27017);
+	public CuentaBancaria getAccountPerNumber(String numero_de_cuentaIns) {
+		
 		try {
 
-			database = mongo.getDatabase("banco");
-
-			cuenta = database.getCollection("cuenta");
+			mongoConnection();
 
 			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuentaIns))
 					.sort(Sorts.descending("fecha_de_apertura")).iterator();
 
-			while (it.hasNext()) {
-				cuentaModeloDocumento = it.next();
-				listadoCuentas.add(new CuentaBancaria(cuentaModeloDocumento));
-				System.out.println(cuentaModeloDocumento);
-			}
+			cuentaModeloDocumento = it.next();
+			cuentaBancaria= new CuentaBancaria(cuentaModeloDocumento);
+				
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -98,35 +98,21 @@ public class CuentaModelo {
 				mongo.close();
 			}
 		}
-		return listadoCuentas;
+		return cuentaBancaria;
 	}
 
 	// Metodo 3: Obtener cuentas bancarias entre dos fechas. // Working
-	public ArrayList<CuentaBancaria> getCuentasFecha(String fecha_apertura_1, String fecha_apertura_2) {
+	public ArrayList<CuentaBancaria> getAccountPerDate(
+			Date fecha_apertura_1, 
+			Date fecha_apertura_2) {
 		listadoCuentas = new ArrayList<>();
-		mongo = new MongoClient("localhost", 27017);
+	
 		try {
 
-			MongoDatabase database = mongo.getDatabase("banco");
-
-			cuenta = database.getCollection("cuenta");
-
-			dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-			parsedDate1 = dateFormat.parse(fecha_apertura_1);
-			parsedDate2 = dateFormat.parse(fecha_apertura_2);
-
-			outputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-			finalDateFormat = outputDateFormat.format(parsedDate1);
-			finalParsedDate1 = outputDateFormat.parse(finalDateFormat);
-
-			finalDateFormat = outputDateFormat.format(parsedDate2);
-			finalParsedDate2 = outputDateFormat.parse(finalDateFormat);
-
+			mongoConnection();
 			it = cuenta
-					.find(Filters.and(Filters.eq("borrada", false), Filters.gte("fecha_de_apertura", finalParsedDate1),
-							Filters.lt("fecha_de_apertura", finalParsedDate2)))
+					.find(Filters.and(Filters.eq("borrada", false), Filters.gte("fecha_de_apertura", fecha_apertura_1),
+							Filters.lt("fecha_de_apertura", fecha_apertura_2)))
 					.sort(Sorts.descending("fecha_de_apertura")).iterator();
 
 			while (it.hasNext()) {
@@ -147,25 +133,24 @@ public class CuentaModelo {
 
 	// Metodo 4: Crear una nueva cuenta bancaria // Working
 
-	public boolean insertNewCuenta(String numero_de_cuentaIns, ArrayList<String> titularesIns, double saldoIns) {
+	public boolean insertNewAccount(String numero_de_cuentaIns, 
+			ArrayList<String> titularesIns, double saldoIns) {
 		cuentaBancaria = new CuentaBancaria();
 		listadoCuentas = new ArrayList<CuentaBancaria>();
 
-		mongo = new MongoClient("localhost", 27017);
 		try {
-			database = mongo.getDatabase("banco");
-
-			cuenta = database.getCollection("cuenta");
+		
+			mongoConnection();
 
 			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuentaIns)).iterator();
 
 				if (!it.hasNext()) {
 				cuentaModeloDocumento = new Document()
-						.append("numero_de_cuenta", numero_de_cuentaIns)
-						.append("titulares", Arrays.asList(titularesIns))
-						.append("saldo", saldoIns)
-						.append("fecha_de_apertura", new Date())
-						.append("borrada", false);
+						.append("account_number", numero_de_cuentaIns)
+						.append("owners", Arrays.asList(titularesIns))
+						.append("balance", saldoIns)
+						.append("starting_date", new Date())
+						.append("deleted", false);
 				
 				cuenta.insertOne(cuentaModeloDocumento);
 					
@@ -191,30 +176,23 @@ public class CuentaModelo {
 
 	// Metodo 5: Actualizar datos cuenta bancaria por numero de cuenta. // Test Pending*
 	// Pending
-	public boolean updateCuenta(String numero_de_cuentaIns, ArrayList<String> titularesIns, String fecha_aperturaIns,
-			boolean borradoIns) {
-		mongo = new MongoClient("localhost", 27017);
-		database = mongo.getDatabase("banco");
-		cuenta = database.getCollection("cuenta");
+	public boolean updateAccount(CuentaBancaria bankAccountModel) {
 		estado_boolean = false;
 
 		try {
+			mongoConnection();
 
-			dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			parsedDate1 = dateFormat.parse(fecha_aperturaIns);
+			cuenta.updateOne(Filters.eq("numero_de_cuenta", bankAccountModel.getAccountNumber()),
+					Updates.set("titulares", bankAccountModel.getOwners()));
 
-			outputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-			finalDateFormat = outputDateFormat.format(parsedDate1);
+			cuenta.updateOne(Filters.eq("numero_de_cuenta", bankAccountModel.getAccountNumber()),
+					Updates.set("fecha_de_apertura", bankAccountModel.getStartingDate()));
+			
+			cuenta.updateOne(Filters.eq("numero_de_cuenta", bankAccountModel.getAccountNumber()),
+					Updates.set("saldo", bankAccountModel.getBalance()));
 
-			finalParsedDate1 = outputDateFormat.parse(finalDateFormat);
-
-			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns),
-					Updates.set("fecha_de_apertura", finalParsedDate1));
-
-			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns),
-					Updates.set("titulares", titularesIns));
-
-			cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns), Updates.set("borrada", borradoIns));
+			cuenta.updateOne(Filters.eq("numero_de_cuenta", bankAccountModel.getAccountNumber()), 
+					Updates.set("borrada", bankAccountModel.isDeleted()));
 
 			estado_boolean = true;
 		} catch (Exception e) {
@@ -230,36 +208,36 @@ public class CuentaModelo {
 
 	// Metodo 6: Borrar cuenta bancaria por numero de cuenta. // Working
 
-	public boolean deleteCuenta(String numero_de_cuentaIns) {
-		mongo = new MongoClient("localhost", 27017);
-		database = mongo.getDatabase("banco");
-		cuenta = database.getCollection("cuenta");
-		estado_boolean = false;
-
-		try {
-			cuenta.deleteMany(Filters.eq("numero_de_cuenta", numero_de_cuentaIns));
-			estado_boolean = true;
-		} catch (Exception e) {
-			estado_boolean = false;
-			e.printStackTrace();
-		} finally {
-			if (mongo != null) {
-				mongo.close();
-			}
-		}
-		return estado_boolean;
-	}
+//	public boolean deleteAccount(String numero_de_cuentaIns) {
+//		mongo = new MongoClient("localhost", 27017);
+//		database = mongo.getDatabase("banco");
+//		cuenta = database.getCollection("cuenta");
+//		estado_boolean = false;
+//
+//		try {
+//			cuenta.deleteMany(Filters.eq("numero_de_cuenta", numero_de_cuentaIns));
+//			estado_boolean = true;
+//		} catch (Exception e) {
+//			estado_boolean = false;
+//			e.printStackTrace();
+//		} finally {
+//			if (mongo != null) {
+//				mongo.close();
+//			}
+//		}
+//		return estado_boolean;
+//	}
 
 	// Metodo 7: Ingresar dinero en cuenta bancaria. // Working
 
-	public String insertIngresarCuenta(String numero_de_cuentaIns, double saldo_entrante) {
+	public String depositMoney(String numero_de_cuentaIns, double saldo_entrante) {
 		mongo = new MongoClient("localhost", 27017);
 		database = mongo.getDatabase("banco");
 		cuenta = database.getCollection("cuenta");
 		estado_string = "";
 		try {
 //			cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
-			saldoPrevio = cuentasNumber.get(0).getSaldo();
+			saldoPrevio = cuentasNumber.get(0).getBalance();
 			saldo_actualizado = saldo_entrante + saldoPrevio;
 
 			if (saldo_entrante >= 0.00) {
@@ -284,14 +262,14 @@ public class CuentaModelo {
 
 	// Metodo 8: Retirar dinero de una cuenta. // Working
 
-	public String withdrawDineroCuenta(String numero_de_cuentaIns, double saldo_saliente) {
+	public String withdrawMoney(String numero_de_cuentaIns, double saldo_saliente) {
 		MongoClient mongo = new MongoClient("localhost", 27017);
 		MongoDatabase database = mongo.getDatabase("banco");
 		MongoCollection<Document> cuenta = database.getCollection("cuenta");
 		estado_string = "";
 		try {
 //			ArrayList<CuentaBancaria> cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
-			double saldoPrevio = cuentasNumber.get(0).getSaldo();
+			double saldoPrevio = cuentasNumber.get(0).getBalance();
 			double saldo_actualizado = saldoPrevio - saldo_saliente;
 
 			if (saldo_saliente > 0.00 && saldo_actualizado > 0) {

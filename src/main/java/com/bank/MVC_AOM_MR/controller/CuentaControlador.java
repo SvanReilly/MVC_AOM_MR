@@ -1,8 +1,11 @@
 package com.bank.MVC_AOM_MR.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.bson.Document;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,27 +32,27 @@ public class CuentaControlador {
 	// Mostrar todas las cuentas bancarias: /banco/cuenta (GET) (No debe mostrar las
 	// cuentas borradas):
 	@GetMapping("/banco/cuenta")
-	public List<CuentaBancaria> getCuentasController() {
-		return cuentaModelo.getCuentas();
+	public ArrayList<CuentaBancaria> getCuentasController() {
+		return cuentaModelo.getAllAccounts();
 	}
 
 	// Mostrar cuentas bancarias por numero de cuenta: /banco/cuenta/{nro_cuenta}
 	// (GET):
 	@GetMapping("banco/cuenta/{nro_cuenta}")
-	public ArrayList<CuentaBancaria> getCuentaNumberController(
-			@PathVariable String nro_cuenta) {
+	public CuentaBancaria getCuentaNumberController(
+			@PathVariable String numberAccoutnIns) {
 		
-		return cuentaModelo.getCuentaNumber(nro_cuenta);
+		return cuentaModelo.getAccountPerNumber(numberAccoutnIns);
 	}
 
 	// Mostrar cuentas bancarias por rango de fecha de apertura:
 	// /banco/cuenta/{fecha_ini}/{fecha_fin} (GET):
 	@GetMapping("banco/cuenta/{fecha_ini}/{fecha_fin}")
 	public ArrayList<CuentaBancaria> getCuentasFechaController(
-			@PathVariable String fecha_apertura_1, 
-			@PathVariable String fecha_apertura_2) {
+			@PathVariable Date fecha_apertura_1, 
+			@PathVariable Date fecha_apertura_2) {
 		
-		return cuentaModelo.getCuentasFecha(fecha_apertura_1, fecha_apertura_2);
+		return cuentaModelo.getAccountPerDate(fecha_apertura_1, fecha_apertura_2);
 	}
 
 	// Insertar nuevas cuentas bancarias: /banco/cuenta/new (PUT):
@@ -59,28 +62,55 @@ public class CuentaControlador {
 			@RequestParam ArrayList<String> titularesIns, 
 			@RequestParam double saldoIns) {
 		
-		return cuentaModelo.insertNewCuenta(numero_de_cuentaIns, titularesIns, saldoIns);
+		return cuentaModelo.insertNewAccount(numero_de_cuentaIns, titularesIns, saldoIns);
 	}
 
 	// Actualizar cuentas bancarias por número de cuenta: /banco/cuenta/update
 	// (PUT):
 	@PutMapping("banco/cuenta/update")
 	public boolean updateCuentaController(
-			@RequestParam String numero_de_cuentaIns, 
-			@RequestParam ArrayList<String> titularesIns, 
-			@RequestParam String fecha_aperturaIns,
-			@RequestParam boolean borradoIns) {
+			@RequestParam String numberAccountIns, 
+			@RequestParam ArrayList<String> ownersIns, 
+			@RequestParam double balanceIns,
+			@RequestParam Date startingDateIns, 
+			@RequestParam boolean deletedEdit) {
 		
-		return cuentaModelo.updateCuenta(numero_de_cuentaIns, titularesIns, fecha_aperturaIns, borradoIns) ;
+		CuentaBancaria recoveredAccount = cuentaModelo.getAccountPerNumber(numberAccountIns);
+		
+		if (recoveredAccount!=null) {
+			
+			
+			if (recoveredAccount.getStartingDate() != startingDateIns && startingDateIns != new Date()) {
+				
+				recoveredAccount.setStartingDate(startingDateIns);
+				
+			} else if (recoveredAccount.getBalance() != balanceIns && balanceIns != 0) {
+				
+				recoveredAccount.setBalance(balanceIns);
+				
+			} else if (recoveredAccount.isDeleted() != deletedEdit) {
+				
+				recoveredAccount.setDeleted(deletedEdit);
+			} 
+		} else {
+			
+		}
+	
+		return cuentaModelo.updateAccount(recoveredAccount) ;
 	}
 	
 	// Borrar cuentas bancarias por numero de cuenta: /banco/cuenta/{nro_cuenta}
 	// (DELETE) (soft deletion):
 	@DeleteMapping("banco/cuenta/{numeroDeCuenta}")
 	public boolean deleteCuentaController(
-			@RequestParam String numero_de_cuentaIns) {
+			@RequestParam String numberAccountIns, 
+			@RequestParam boolean deletedEdit) {
+		boolean estado_boolean=false;
+		CuentaBancaria recoveredAccount = cuentaModelo.getAccountPerNumber(numberAccountIns);
 		
-		return cuentaModelo.deleteCuenta(numero_de_cuentaIns);
+		cuentaModelo.updateAccount(recoveredAccount);
+		
+		return estado_boolean;
 	}
 
 //         Insertar dinero por numero de cuenta: /banco/cuenta/ingresar/ (PUT con datos {nro_cuenta} e {ingreso})
@@ -105,7 +135,7 @@ public class CuentaControlador {
 			@RequestParam String numero_de_cuentaIns, 
 			@RequestParam double saldo_saliente) {
 
-		return cuentaModelo.withdrawDineroCuenta(numero_de_cuentaIns, saldo_saliente) ;
+		return cuentaModelo.withdrawMoney(numero_de_cuentaIns, saldo_saliente) ;
 	}
 }
 //
