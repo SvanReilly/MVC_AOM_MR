@@ -2,11 +2,9 @@ package com.bank.MVC_AOM_MR.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import org.bson.Document;
 
-public class CuentaBancaria {
+public class BankAccount {
 	private String accountNumber;
 	private ArrayList<String> owners;
 	private double balance;
@@ -14,24 +12,21 @@ public class CuentaBancaria {
 	private boolean deleted;
 
 	// Constructor por defecto
-	public CuentaBancaria() {
-		this.accountNumber= "";
-		this.owners = new ArrayList<>();
-		this.balance= 0;
-		this.startingDate = new Date();
-		this.deleted = false;
+	public BankAccount() {
+		this.accountNumber="";
 	}
 
-	public CuentaBancaria(Document bankAccountDoc) {
-		this.accountNumber = bankAccountDoc.getString("numero_de_cuenta");
-		this.owners = (ArrayList<String>) bankAccountDoc.get("titulares");
-		this.balance = bankAccountDoc.get("saldo", Number.class).doubleValue();
-		this.startingDate = (Date) bankAccountDoc.getDate("fecha_de_apertura");
-		this.deleted = bankAccountDoc.getBoolean("borrada", false);
+	@SuppressWarnings("unchecked")
+	public BankAccount(Document bankAccountDoc) {
+		this.accountNumber = bankAccountDoc.getString("account_number");
+		this.owners = (ArrayList<String>) bankAccountDoc.get("owners");
+		this.balance = (double) bankAccountDoc.get("balance");
+		this.startingDate = (Date) bankAccountDoc.getDate("starting_date");
+		this.deleted = bankAccountDoc.getBoolean("deleted", false);
 	}
 
 	// Constructor con parámetros
-	public CuentaBancaria(String accountNumber, ArrayList<String> owners, double balance, Date startingDate,
+	public BankAccount(String accountNumber, ArrayList<String> owners, double balance, Date startingDate,
 			boolean deleted) {
 		this.accountNumber = accountNumber;
 		this.owners = owners;
@@ -81,13 +76,18 @@ public class CuentaBancaria {
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
 	}
-	
-	public void depositMoney (double moneyIns) {
+
+	public void depositMoney(double moneyIns) {
 		setBalance(getBalance() + moneyIns);
 	}
-	public void withdrawMoney (double moneyIns) {
+
+	public void withdrawMoney(double moneyIns) {
 		setBalance(getBalance() - moneyIns);
 	}
 
-
+	@Override
+	public String toString() {
+		return "BankAccount [accountNumber=" + accountNumber + ", owners=" + owners + ", balance=" + balance
+				+ ", startingDate=" + startingDate + ", deleted=" + deleted + "]";
+	}
 }
