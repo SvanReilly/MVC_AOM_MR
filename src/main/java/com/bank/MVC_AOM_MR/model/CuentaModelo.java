@@ -81,16 +81,10 @@ public class CuentaModelo {
 	public CuentaBancaria getAccountPerNumber(String numero_de_cuentaIns) {
 		
 		try {
-
 			mongoConnection();
-
-			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuentaIns))
-					.sort(Sorts.descending("fecha_de_apertura")).iterator();
-
+			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuentaIns)).iterator();
 			cuentaModeloDocumento = it.next();
 			cuentaBancaria= new CuentaBancaria(cuentaModeloDocumento);
-				
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -108,13 +102,11 @@ public class CuentaModelo {
 		listadoCuentas = new ArrayList<>();
 	
 		try {
-
 			mongoConnection();
 			it = cuenta
 					.find(Filters.and(Filters.eq("borrada", false), Filters.gte("fecha_de_apertura", fecha_apertura_1),
 							Filters.lt("fecha_de_apertura", fecha_apertura_2)))
 					.sort(Sorts.descending("fecha_de_apertura")).iterator();
-
 			while (it.hasNext()) {
 				cuentaModeloDocumento = it.next();
 				listadoCuentas.add(new CuentaBancaria(cuentaModeloDocumento));
@@ -133,35 +125,19 @@ public class CuentaModelo {
 
 	// Metodo 4: Crear una nueva cuenta bancaria // Working
 
-	public boolean insertNewAccount(String numero_de_cuentaIns, 
-			ArrayList<String> titularesIns, double saldoIns) {
-		cuentaBancaria = new CuentaBancaria();
-		listadoCuentas = new ArrayList<CuentaBancaria>();
-
+	public boolean insertNewAccount(CuentaBancaria bankAccountModel) {
 		try {
-		
 			mongoConnection();
-
-			it = cuenta.find(Filters.eq("numero_de_cuenta", numero_de_cuentaIns)).iterator();
-
-				if (!it.hasNext()) {
 				cuentaModeloDocumento = new Document()
-						.append("account_number", numero_de_cuentaIns)
-						.append("owners", Arrays.asList(titularesIns))
-						.append("balance", saldoIns)
+						.append("account_number", bankAccountModel.getAccountNumber())
+						.append("owners", bankAccountModel.getOwners())
+						.append("balance", bankAccountModel.getBalance())
 						.append("starting_date", new Date())
 						.append("deleted", false);
 				
 				cuenta.insertOne(cuentaModeloDocumento);
-					
 				estado_boolean = true;
-					
-				} else {
-
-				estado_boolean = false;
-				
-				}
-			
+								
 		} catch (Exception e) {
 			estado_boolean = false;
 			e.printStackTrace();
@@ -178,7 +154,6 @@ public class CuentaModelo {
 	// Pending
 	public boolean updateAccount(CuentaBancaria bankAccountModel) {
 		estado_boolean = false;
-
 		try {
 			mongoConnection();
 
@@ -230,35 +205,35 @@ public class CuentaModelo {
 
 	// Metodo 7: Ingresar dinero en cuenta bancaria. // Working
 
-	public String depositMoney(String numero_de_cuentaIns, double saldo_entrante) {
-		mongo = new MongoClient("localhost", 27017);
-		database = mongo.getDatabase("banco");
-		cuenta = database.getCollection("cuenta");
-		estado_string = "";
-		try {
-//			cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
-			saldoPrevio = cuentasNumber.get(0).getBalance();
-			saldo_actualizado = saldo_entrante + saldoPrevio;
-
-			if (saldo_entrante >= 0.00) {
-				estado_string = "Se ha realizado un ingreso por la cantidad de " + saldo_entrante + " euros." + "\n"
-						+ "El saldo total de la cuenta con numero de cuenta " + numero_de_cuentaIns + " es de "
-						+ saldo_actualizado;
-				cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns),
-						Updates.set("saldo", saldo_actualizado));
-			} else {
-				estado_string = "Por favor, inserte una cantidad valida para ingresar.";
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			estado_string = "No ha podido realizarse el ingreso deseado.";
-		} finally {
-			if (mongo != null) {
-				mongo.close();
-			}
-		}
-		return estado_string;
-	}
+//	public String depositMoney(String numero_de_cuentaIns, double saldo_entrante) {
+//		mongo = new MongoClient("localhost", 27017);
+//		database = mongo.getDatabase("banco");
+//		cuenta = database.getCollection("cuenta");
+//		estado_string = "";
+//		try {
+////			cuentasNumber = getCuentaNumber(numero_de_cuentaIns);
+//			saldoPrevio = cuentasNumber.get(0).getBalance();
+//			saldo_actualizado = saldo_entrante + saldoPrevio;
+//
+//			if (saldo_entrante >= 0.00) {
+//				estado_string = "Se ha realizado un ingreso por la cantidad de " + saldo_entrante + " euros." + "\n"
+//						+ "El saldo total de la cuenta con numero de cuenta " + numero_de_cuentaIns + " es de "
+//						+ saldo_actualizado;
+//				cuenta.updateOne(Filters.eq("numero_de_cuenta", numero_de_cuentaIns),
+//						Updates.set("saldo", saldo_actualizado));
+//			} else {
+//				estado_string = "Por favor, inserte una cantidad valida para ingresar.";
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			estado_string = "No ha podido realizarse el ingreso deseado.";
+//		} finally {
+//			if (mongo != null) {
+//				mongo.close();
+//			}
+//		}
+//		return estado_string;
+//	}
 
 	// Metodo 8: Retirar dinero de una cuenta. // Working
 

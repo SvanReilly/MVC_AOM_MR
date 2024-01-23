@@ -54,7 +54,7 @@ public class CuentaBancaria {
 		return owners;
 	}
 
-	public void setTitulares(ArrayList<String> owners) {
+	public void setOwners(ArrayList<String> owners) {
 		this.owners = owners;
 	}
 
