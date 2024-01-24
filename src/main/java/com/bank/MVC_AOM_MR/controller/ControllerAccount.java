@@ -1,12 +1,14 @@
 package com.bank.MVC_AOM_MR.controller;
 
-import java.text.ParseException;
+import java.text.DateFormat;
+//import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.bson.Document;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import javax.print.attribute.standard.MediaSize.ISO;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,11 +23,13 @@ import com.bank.MVC_AOM_MR.model.ModelAccount;
 @RequestMapping("/bank/account")
 public class ControllerAccount {
 	ModelAccount modelAccountController = new ModelAccount();
+	
 	SimpleDateFormat dateFormat;
 	Date parsedDate1, parsedDate2;
 	SimpleDateFormat outputDateFormat;
 	String finalDateFormat;
 	Date startingDateOldParsed, startingDateRecentParsed;
+	
 
 	public ControllerAccount() {
 
@@ -60,38 +64,29 @@ public class ControllerAccount {
 	// Mostrar cuentas bancarias por rango de fecha de apertura:
 	// /banco/cuenta/{fecha_ini}/{fecha_fin} (GET):
 	// TEST PENDING ...
-	@GetMapping("/date/{startingDateOld}/{startingDateRecent} ")
-	public ArrayList<BankAccount> getAccountPerDateController(
-			@PathVariable Date startingDateOld,
-			@PathVariable Date startingDateRecent) {
-		
-		
-		
+	@GetMapping("/{startingDateOld}/{startingDateRecent}")
+	public ArrayList<BankAccount> getAccountPerDateController(@PathVariable String startingDateOld, @PathVariable String startingDateRecent) {
+		try {
+			dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			
+			parsedDate1 = dateFormat.parse(startingDateOld);
+			parsedDate2 = dateFormat.parse(startingDateRecent);
 
-//		try {
-//			dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//			
-//			parsedDate1 = dateFormat.parse(startingDateOld);
-//			parsedDate2 = dateFormat.parse(startingDateRecent);
-//
-//			outputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//
-//			finalDateFormat = outputDateFormat.format(parsedDate1);
-//			startingDateOldParsed = outputDateFormat.parse(finalDateFormat);
-//
-//			finalDateFormat = outputDateFormat.format(parsedDate2);
-//			startingDateRecentParsed = outputDateFormat.parse(finalDateFormat);
-//			
-//
-//		} catch (ParseException e) {
-//			
+			outputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+			finalDateFormat = outputDateFormat.format(parsedDate1);
+			startingDateOldParsed = (Date) outputDateFormat.parse(finalDateFormat);
+
+			finalDateFormat = outputDateFormat.format(parsedDate2);
+			startingDateRecentParsed = (Date) outputDateFormat.parse(finalDateFormat);
+			
+
+		} catch (Exception e) {
+			
 //			e.printStackTrace();
-//		}
-		System.out.println(startingDateOld 
-				+ "\n"
-				+ startingDateRecent);
+		}
 
-		return modelAccountController.getAccountPerDate(startingDateOld, startingDateRecent);
+		return modelAccountController.getAccountPerDate(startingDateOldParsed, startingDateRecentParsed);
 	}
 
 	// Insertar nuevas cuentas bancarias: /banco/cuenta/new (PUT):
@@ -105,7 +100,7 @@ public class ControllerAccount {
 	) {
 		boolean boolean_status = false;
 		BankAccount recoveredAccount = modelAccountController.getAccountPerNumber(accountNumberIns);
-		System.out.println(recoveredAccount.getAccountNumber());
+//		System.out.println(recoveredAccount.getAccountNumber());
 		
 		if (recoveredAccount.getAccountNumber().equals("No existe")) {
 			recoveredAccount = new BankAccount(
@@ -119,7 +114,6 @@ public class ControllerAccount {
 		} else {
 			boolean_status = false;
 		}
-
 		return boolean_status;
 	}
 
@@ -129,19 +123,16 @@ public class ControllerAccount {
 	@PutMapping("/update")
 	public boolean updateAccountController(@RequestParam String accountNumberIns,
 			@RequestParam ArrayList<String> ownersIns,
-			@RequestParam Date startingDateIns
-			, @RequestParam boolean deletedEdit
+//			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam Date startingDateIns, 
+			@RequestParam boolean deletedEdit
 	) {
 		boolean boolean_status = false;
 		BankAccount recoveredAccount = modelAccountController.getAccountPerNumber(accountNumberIns);
-	
-		
+//		System.out.println(recoveredAccount.toString());
 		if (recoveredAccount != null) {
-			recoveredAccount.setStartingDate(startingDateIns);
+//			recoveredAccount.setStartingDate(startingDateIns);
 			recoveredAccount.setOwners(ownersIns);
 			recoveredAccount.setDeleted(deletedEdit);
-			
-			
 			modelAccountController.updateAccount(recoveredAccount);
 			boolean_status = true;
 		} 
@@ -149,6 +140,17 @@ public class ControllerAccount {
 		return boolean_status;
 	}
 
+//	public static void main(String[] args) {
+//		ControllerAccount controllerAccount = new ControllerAccount();
+//		ArrayList<String> ownersMain= new ArrayList<String>();
+//		ownersMain.add("PaquitaMermela");
+//		
+//		controllerAccount.updateAccountController("maikyCuadrosEsPuto", ownersMain, null, false);
+//		
+//		System.out.println(controllerAccount
+//				.getAccountPerNumberController("maikyCuadrosEsPuto")
+//				.getStartingDate().toString());
+//	} 
 	// Borrar cuentas bancarias por numero de cuenta: /banco/cuenta/{nro_cuenta}
 	// 100% FUNCIONAL
 	// (DELETE) (soft deletion):

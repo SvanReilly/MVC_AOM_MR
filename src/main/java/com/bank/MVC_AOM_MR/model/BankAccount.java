@@ -10,6 +10,7 @@ public class BankAccount {
 	private double balance;
 	private Date startingDate;
 	private boolean deleted;
+	private char[] currency = {'E','U','R'};
 //	private final String SpanishIBANprefix = "ES94";
 
 	// Constructor por defecto

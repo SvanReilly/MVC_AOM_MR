@@ -1,5 +1,6 @@
 package com.bank.MVC_AOM_MR.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -28,6 +29,10 @@ public class ModelAccount {
 	boolean boolean_status = false;
 	String estado_string = "";
 
+	SimpleDateFormat dateFormat, outputDateFormat;
+	Date parsedDate1, parsedDate2;
+	String finalDateFormat;
+	Date startingDateOldParsed, startingDateRecentParsed;
 
 	public ModelAccount() {
 	}
@@ -41,8 +46,8 @@ public class ModelAccount {
 
 	// Metodo 1: Obtener todas las cuentas bancarias de nuestra bbdd // Working
 	public ArrayList<BankAccount> getAllAccounts() {
-		accountList = new ArrayList<BankAccount>();
 		mongoConnection();
+		accountList = new ArrayList<BankAccount>();
 		try {
 			it = accountCollections
 					.find(Filters.eq("deleted", false))
@@ -81,38 +86,54 @@ public class ModelAccount {
 		return bankAccount;
 	}
 	
-//	public static void main(String[] args) {
-//		ModelAccount modelAccount = new ModelAccount();
-//		System.out.println(modelAccount.getAccountPerNumber("jejejejrickroll4324").toString());
-//	}
 
 	// Metodo 3: Obtener cuentas bancarias entre dos fechas. // Working
 	public ArrayList<BankAccount> getAccountPerDate(Date startingDateOld, Date startingDateRecent) {
-		accountList = new ArrayList<>();
-
+		mongoConnection();
+		accountList = new ArrayList<BankAccount>();
 		try {
-			mongoConnection();
+			
+//			dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//
+//			parsedDate1 = dateFormat.parse(startingDateOld);
+//			parsedDate2 = dateFormat.parse(startingDateRecent);
+//
+//			outputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+//
+//			finalDateFormat = outputDateFormat.format(parsedDate1);
+//			startingDateOldParsed =  (Date) outputDateFormat.parse(finalDateFormat);
+//
+//			finalDateFormat = outputDateFormat.format(parsedDate2);
+//			startingDateRecentParsed = (Date) outputDateFormat.parse(finalDateFormat);
+//
+//			System.out.println(startingDateOldParsed+ "\n" + startingDateRecentParsed);
+//			
+					
 			it = accountCollections
 					.find(Filters.and(
 							Filters.eq("deleted", false), 
-							Filters.gte("startingDate", startingDateOld),
-							Filters.lt("startingDate", startingDateRecent)))
+							Filters.gte("starting_date", startingDateOld),
+							Filters.lte("starting_date", startingDateRecent)))
 					.sort(Sorts.descending("starting_date")).iterator();
 			while (it.hasNext()) {
 				ModelAccountDocument = it.next();
-				accountList.add(new BankAccount(ModelAccountDocument));
+				bankAccount = new BankAccount(ModelAccountDocument);
+				accountList.add(bankAccount);
 			}
 		} catch (Exception e) {
 //			e.printStackTrace();
 		} finally {
-
 			if (mongo != null) {
 				mongo.close();
 			}
 		}
-
 		return accountList;
 	}
+//	public static void main(String[] args) {
+//	ModelAccount modelAccount = new ModelAccount();
+//	System.out.println("");
+//	System.out.println(modelAccount.getAccountPerDate("1500-06-24", "2025-09-23"));
+//}
 
 	// Metodo 4: Crear una nueva cuenta bancaria // Working
 
