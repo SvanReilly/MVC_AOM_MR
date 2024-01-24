@@ -13,12 +13,14 @@ import com.mongodb.client.model.Updates;
 
 public class ModelAccount {
 //	- CuentaModelo.java
-//		-Interfaz 
+//		- Interfaz 
 //		- Conexion a la base de datos 
+	
 	BankAccount bankAccount;
 	ArrayList<BankAccount> accountList;
-	
+
 	Document ModelAccountDocument;
+	
 	MongoClient mongo;
 	MongoDatabase database;
 	MongoCollection<Document> accountCollections;
@@ -36,9 +38,6 @@ public class ModelAccount {
 		accountCollections = database.getCollection("account");
 	}
 
-	public void mongoDisconnection() {
-		mongo.close();
-	}
 
 	// Metodo 1: Obtener todas las cuentas bancarias de nuestra bbdd // Working
 	public ArrayList<BankAccount> getAllAccounts() {
@@ -52,30 +51,28 @@ public class ModelAccount {
 				ModelAccountDocument = it.next();
 				bankAccount = new BankAccount(ModelAccountDocument);
 				accountList.add(bankAccount);
-
 			}
-
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		} finally {
-
 			if (mongo != null) {
 				mongo.close();
 			}
 		}
-
 		return accountList;
 	}
 	// Metodo 2: Obtener cuentas bancarias por numero de cuenta // Working
 
 	public BankAccount getAccountPerNumber(String accountNumberIns) {
 		mongoConnection();
+		bankAccount = new BankAccount();
 		try {
 //			it = accountCollections.find(Filters.eq("account_number", accountNumberIns)).iterator();
-			ModelAccountDocument = accountCollections.find(Filters.eq("account_number", accountNumberIns)).first();
+			ModelAccountDocument = accountCollections
+					.find(Filters.eq("account_number", accountNumberIns)).first();
 			bankAccount = new BankAccount(ModelAccountDocument);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		} finally {
 			if (mongo != null) {
 				mongo.close();
@@ -90,21 +87,23 @@ public class ModelAccount {
 //	}
 
 	// Metodo 3: Obtener cuentas bancarias entre dos fechas. // Working
-	public ArrayList<BankAccount> getAccountPerDate(Date startingDateIns_1, Date startingDateIns_2) {
+	public ArrayList<BankAccount> getAccountPerDate(Date startingDateOld, Date startingDateRecent) {
 		accountList = new ArrayList<>();
 
 		try {
 			mongoConnection();
 			it = accountCollections
-					.find(Filters.and(Filters.eq("deleted", false), Filters.gte("starting_date", startingDateIns_1),
-							Filters.lt("starting_date", startingDateIns_2)))
+					.find(Filters.and(
+							Filters.eq("deleted", false), 
+							Filters.gte("startingDate", startingDateOld),
+							Filters.lt("startingDate", startingDateRecent)))
 					.sort(Sorts.descending("starting_date")).iterator();
 			while (it.hasNext()) {
 				ModelAccountDocument = it.next();
 				accountList.add(new BankAccount(ModelAccountDocument));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		} finally {
 
 			if (mongo != null) {
@@ -117,9 +116,18 @@ public class ModelAccount {
 
 	// Metodo 4: Crear una nueva cuenta bancaria // Working
 
-	public boolean insertNewAccount(Document ModelAccountDocumentIns) {
+	public boolean insertNewAccount(BankAccount bankAccount) {
+		
 		try {
 			mongoConnection();
+			
+			Document ModelAccountDocumentIns = new Document()
+					.append("account_number", bankAccount.getAccountNumber())
+					.append("owners", bankAccount.getOwners())
+					.append("balance", bankAccount.getBalance())
+					.append("starting_date", new Date())
+					.append("deleted", false);
+			
 			accountCollections.insertOne(ModelAccountDocumentIns);
 			boolean_status = true;
 		} catch (Exception e) {
@@ -136,28 +144,27 @@ public class ModelAccount {
 	// Metodo 5: Actualizar datos cuenta bancaria por numero de cuenta. // Test
 	// Pending*
 	// Pending
-	@SuppressWarnings("unchecked")
-	public boolean updateAccount(Document ModelAccountDocumentIns) {
+	public boolean updateAccount(BankAccount bankAccount) {
 		boolean_status = false;
 		try {
 			mongoConnection();
 
-			accountCollections.updateOne(Filters.eq("account_number", ModelAccountDocumentIns.getString("account_number")),
-					Updates.set("owners", (ArrayList<String>) ModelAccountDocumentIns.get("owners")));
+			accountCollections.updateOne(Filters.eq("account_number", bankAccount.getAccountNumber()),
+					Updates.set("owners", bankAccount.getOwners()));
 			
-			accountCollections.updateOne(Filters.eq("account_number", ModelAccountDocumentIns.getString("account_number")),
-					Updates.set("balance", (double) ModelAccountDocumentIns.get("balance")));
+			accountCollections.updateOne(Filters.eq("account_number", bankAccount.getAccountNumber()),
+					Updates.set("balance", bankAccount.getBalance()));
 			
-			accountCollections.updateOne(Filters.eq("account_number", ModelAccountDocumentIns.get("account_number")),
-					Updates.set("fecha_de_apertura", ModelAccountDocumentIns.getDate("starting_date")));
+			accountCollections.updateOne(Filters.eq("account_number", bankAccount.getAccountNumber()),
+					Updates.set("starting_date", bankAccount.getStartingDate()));
 			
-			accountCollections.updateOne(Filters.eq("account_number", ModelAccountDocumentIns.getString("account_number")),
-					Updates.set("deleted", ModelAccountDocumentIns.getBoolean("deleted")));
+			accountCollections.updateOne(Filters.eq("account_number", bankAccount.getAccountNumber()),
+					Updates.set("deleted", bankAccount.isDeleted()));
 
 			boolean_status = true;
 		} catch (Exception e) {
 			boolean_status = false;
-			e.printStackTrace();
+//			e.printStackTrace();
 		} finally {
 			if (mongo != null) {
 				mongo.close();

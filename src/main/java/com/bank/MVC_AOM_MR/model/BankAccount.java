@@ -10,10 +10,11 @@ public class BankAccount {
 	private double balance;
 	private Date startingDate;
 	private boolean deleted;
+//	private final String SpanishIBANprefix = "ES94";
 
 	// Constructor por defecto
 	public BankAccount() {
-		this.accountNumber="";
+		this.accountNumber = "No existe";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -25,10 +26,10 @@ public class BankAccount {
 		this.deleted = bankAccountDoc.getBoolean("deleted", false);
 	}
 
-	// Constructor con parámetros
+	// Constructor con parametros
 	public BankAccount(String accountNumber, ArrayList<String> owners, double balance, Date startingDate,
 			boolean deleted) {
-		this.accountNumber = accountNumber;
+		this.setAccountNumber(accountNumber);
 		this.owners = owners;
 		this.balance = balance;
 		this.startingDate = startingDate;
@@ -42,7 +43,9 @@ public class BankAccount {
 	}
 
 	public void setAccountNumber(String accountNumber) {
-		this.accountNumber = accountNumber;
+		this.accountNumber = 
+//				SpanishIBANprefix + 
+				accountNumber;
 	}
 
 	public ArrayList<String> getOwners() {
@@ -50,7 +53,12 @@ public class BankAccount {
 	}
 
 	public void setOwners(ArrayList<String> owners) {
-		this.owners = owners;
+		if (owners == null) {
+			this.owners = getOwners();
+			
+		} else {
+			this.owners = owners;
+		}
 	}
 
 	public double getBalance() {
@@ -66,7 +74,11 @@ public class BankAccount {
 	}
 
 	public void setStartingDate(Date startingDate) {
-		this.startingDate = startingDate;
+		if (startingDate == null) {
+			this.startingDate = getStartingDate();
+		}else {
+			this.startingDate = startingDate;
+		}
 	}
 
 	public boolean isDeleted() {
@@ -77,12 +89,31 @@ public class BankAccount {
 		this.deleted = deleted;
 	}
 
-	public void depositMoney(double moneyIns) {
-		setBalance(getBalance() + moneyIns);
+	public boolean depositMoney(double moneyIns) {
+		boolean depositStatus = false;
+		if (moneyIns > 0.00) {
+			setBalance(getBalance() + moneyIns);
+			depositStatus=true;
+		} else {
+			depositStatus=false;
+		}
+		return depositStatus;
+
 	}
 
-	public void withdrawMoney(double moneyIns) {
-		setBalance(getBalance() - moneyIns);
+	public boolean withdrawMoney(double moneyIns) {
+		boolean withdrawStatus = false;
+
+		if (moneyIns > 0.00 && getBalance() >= moneyIns) {
+			setBalance(getBalance() - moneyIns);
+			withdrawStatus = true;
+		} else if (moneyIns > 0.00 && moneyIns > getBalance()) {
+			setBalance(0);
+			withdrawStatus = true;
+		} else {
+			withdrawStatus = false;
+		}
+		return withdrawStatus;
 	}
 
 	@Override
