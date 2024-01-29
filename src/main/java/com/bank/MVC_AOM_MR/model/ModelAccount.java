@@ -43,6 +43,16 @@ public class ModelAccount {
 		accountCollections = database.getCollection("account");
 	}
 
+	// EXTRA EXTRA EXTRA //
+	public boolean deleteDataBase() {
+		boolean_status= false;
+		mongoConnection();
+		if(boolean_status == false) {
+			database.drop();
+			boolean_status = true;
+		} 
+		return boolean_status;
+	}
 
 	// Metodo 1: Obtener todas las cuentas bancarias de nuestra bbdd // Working
 	public ArrayList<BankAccount> getAllAccounts() {
@@ -92,7 +102,6 @@ public class ModelAccount {
 		mongoConnection();
 		accountList = new ArrayList<BankAccount>();
 		try {
-			
 //			dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 //
 //			parsedDate1 = dateFormat.parse(startingDateOld);
@@ -108,7 +117,6 @@ public class ModelAccount {
 //
 //			System.out.println(startingDateOldParsed+ "\n" + startingDateRecentParsed);
 //			
-					
 			it = accountCollections
 					.find(Filters.and(
 							Filters.eq("deleted", false), 
@@ -193,4 +201,6 @@ public class ModelAccount {
 		}
 		return boolean_status;
 	}
+	
+
 }

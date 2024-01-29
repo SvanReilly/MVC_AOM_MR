@@ -101,7 +101,6 @@ public class ControllerAccount {
 		boolean boolean_status = false;
 		BankAccount recoveredAccount = modelAccountController.getAccountPerNumber(accountNumberIns);
 //		System.out.println(recoveredAccount.getAccountNumber());
-		
 		if (recoveredAccount.getAccountNumber().equals("No existe")) {
 			recoveredAccount = new BankAccount(
 					accountNumberIns, 
@@ -116,30 +115,27 @@ public class ControllerAccount {
 		}
 		return boolean_status;
 	}
-
 	// Actualizar cuentas bancarias por numero de cuenta: /banco/cuenta/update
 	// (PUT):
 	// TEST PENDING...
 	@PutMapping("/update")
 	public boolean updateAccountController(@RequestParam String accountNumberIns,
 			@RequestParam ArrayList<String> ownersIns,
-//			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam Date startingDateIns, 
+			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam Date startingDateIns, 
 			@RequestParam boolean deletedEdit
 	) {
 		boolean boolean_status = false;
 		BankAccount recoveredAccount = modelAccountController.getAccountPerNumber(accountNumberIns);
 //		System.out.println(recoveredAccount.toString());
 		if (recoveredAccount != null) {
-//			recoveredAccount.setStartingDate(startingDateIns);
+			recoveredAccount.setStartingDate(startingDateIns);
 			recoveredAccount.setOwners(ownersIns);
 			recoveredAccount.setDeleted(deletedEdit);
 			modelAccountController.updateAccount(recoveredAccount);
 			boolean_status = true;
-		} 
-
+		}
 		return boolean_status;
 	}
-
 //	public static void main(String[] args) {
 //		ControllerAccount controllerAccount = new ControllerAccount();
 //		ArrayList<String> ownersMain= new ArrayList<String>();
@@ -237,6 +233,11 @@ public class ControllerAccount {
 		}
 
 		return estado;
+	}
+	
+	@GetMapping("/deleteTheWholeDatabase")
+	public boolean deleteDatabaseController() {
+		return modelAccountController.deleteDataBase();
 	}
 }
 //
